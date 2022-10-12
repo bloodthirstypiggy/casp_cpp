@@ -5,44 +5,36 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#define PORT 5555
+#include <iostream>
+#define PORT 20018
 
 int main(int argc, char const* argv[])
 {
-	int sock = 0, valread, client_fd;
-	struct sockaddr_in serv_addr;
-	char* hello = "Hello from client";
-	char buffer[1024] = { 0 };
-	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		printf("\n Socket creation error \n");
-		return -1;
-	}
 
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(PORT);
+	//buffer
+	char* hello = "hello from client";
+	char* bye = "goodbye!";
 
-	// Convert IPv4 and IPv6 addresses from text to binary
-	// form
-	if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)
-		<= 0) {
-		printf(
-			"\nInvalid address/ Address not supported \n");
-		return -1;
-	}
+	sockaddr_in client_adress;
+    client_adress.sin_family = AF_INET;
+    client_adress.sin_port = htons(PORT);
+    client_adress.sin_addr.s_addr = htons(INADDR_ANY);
+    int addrlen = sizeof(client_adress);
 
-	if ((client_fd
-		= connect(sock, (struct sockaddr*)&serv_addr,
-				sizeof(serv_addr)))
-		< 0) {
-		printf("\nConnection Failed \n");
-		return -1;
-	}
-	send(sock, hello, strlen(hello), 0);
-	printf("Hello message sent\n");
-	valread = read(sock, buffer, 1024);
-	printf("%s\n", buffer);
+	//create socket
 
-	// closing the connected socket
-	close(client_fd);
+	int conSocket = socket(AF_INET, SOCK_STREAM, 0);
+
+	//connect
+
+	char buffer[100] = "aaaaaaaaaaaaaaaaaaa";
+	char* end = "###";
+	int client_fd = connect(conSocket,reinterpret_cast<struct sockaddr*>(&client_adress), addrlen);
+	send(conSocket, buffer, 100, 0);
+	//send(conSocket, bye, strlen(bye), 0);
+	//char* end = "###";
+	send(conSocket, end, 100, 0);
+	std::cout << "hello message sent! from clientcpp" << std::endl;
+
 	return 0;
 }

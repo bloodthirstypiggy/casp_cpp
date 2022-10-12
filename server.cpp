@@ -7,16 +7,15 @@
 #include <string.h>
 #include <string>
  
+ #define PORT 20018
 using namespace std;
  
 int main()
 {
     int client, server;
     sockaddr_in server_adress;
-    server_adress.sin_family = AF_INET;
-    server_adress.sin_port = htons(5555);
-    server_adress.sin_addr.s_addr = INADDR_LOOPBACK;
     int addrlen = sizeof(server_adress);
+    int opt =1;
 
 
 
@@ -24,14 +23,21 @@ int main()
 
     int conSocket = socket(AF_INET, SOCK_STREAM, 0);
 
+    //setsockopt(conSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+
+    server_adress.sin_family = AF_INET;
+    server_adress.sin_port = htons(PORT);
+    server_adress.sin_addr.s_addr = htons(INADDR_ANY);
+
     //bind
 
-    bind(conSocket,(sockaddr*)&server_adress, sizeof(server_adress));
+    int resbind = bind(conSocket,reinterpret_cast<struct sockaddr*>(&server_adress), sizeof(server_adress));
+    cout << resbind;
 
 
     // listen()
 
-    int error = listen(conSocket, 2);
+    int error = listen(conSocket, 1);
 
 
 
@@ -40,21 +46,26 @@ int main()
 
     //accept
 
-    int new_socket = accept(conSocket,(sockaddr*)&server_adress, (socklen_t*)&addrlen);
+    int new_socket = accept(conSocket,reinterpret_cast<struct sockaddr*>(&server_adress), (socklen_t*)&addrlen);
 
     //handler
 
     char buffer[100];
-
+    char* end = "###";
+    strcpy(buffer, "Server connected! \n");
+    send(new_socket, buffer, 100, 0);
+    memset(buffer, 0, sizeof(buffer));
     while (new_socket>0)
     {
-        strcpy(buffer, "Server connected! \n");
-        send(new_socket, buffer, 100, 0);
-        cout << "connected to the client 1 " << endl 
-        << "enter: " << '#' << "to end conversation\n\n";
-        cout << "client: ";
         recv(new_socket, buffer, 100, 0);
+        if (strstr(buffer, end) != NULL)
+        {
+            break;
+        }
+
+
         cout << buffer << endl;
+        memset(buffer, 0, sizeof(buffer));
     }
 
     return 0;
