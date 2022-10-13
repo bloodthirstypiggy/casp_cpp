@@ -6,11 +6,25 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <string>
- 
+#include <thread>
+#include <fstream>
+
  #define PORT 20018
+ #define BUFFER_SIZE 100
 using namespace std;
  
-int main()
+void addToLog(string string1)
+{
+    ofstream logs;
+    logs.open("log.txt", ios::app);
+    logs << string1 << endl;
+    logs.close();
+}
+
+
+
+
+void sockets()
 {
     int client, server;
     sockaddr_in server_adress;
@@ -32,7 +46,6 @@ int main()
     //bind
 
     int resbind = bind(conSocket,reinterpret_cast<struct sockaddr*>(&server_adress), sizeof(server_adress));
-    cout << resbind;
 
 
     // listen()
@@ -50,23 +63,31 @@ int main()
 
     //handler
 
-    char buffer[100];
+    char buffer[BUFFER_SIZE];
     char* end = "###";
     strcpy(buffer, "Server connected! \n");
-    send(new_socket, buffer, 100, 0);
-    memset(buffer, 0, sizeof(buffer));
+    send(new_socket, buffer, BUFFER_SIZE, 0);
+    memset(buffer, '\0', sizeof(buffer));
     while (new_socket>0)
     {
-        recv(new_socket, buffer, 100, 0);
+        recv(new_socket, buffer, BUFFER_SIZE, 0);
+        cout << "from server buffer: " << buffer << '\n' << endl;
+        addToLog(string(buffer));
         if (strstr(buffer, end) != NULL)
         {
             break;
         }
 
 
-        cout << buffer << endl;
-        memset(buffer, 0, sizeof(buffer));
+        memset(buffer, '\0', BUFFER_SIZE);
     }
 
+}
+
+int main()
+{
+    thread soc(sockets);
+    soc.join();
     return 0;
+
 }

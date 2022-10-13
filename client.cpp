@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <iostream>
 #define PORT 20018
+#define BUFFER_SIZE 100
 
 int main(int argc, char const* argv[])
 {
@@ -27,13 +28,13 @@ int main(int argc, char const* argv[])
 
 	//connect
 
-	char buffer[100] = "aaaaaaaaaaaaaaaaaaa";
+	char buffer[BUFFER_SIZE] = "aaaaaaaaaaaaaaaaaaa";
 	char* end = "###";
 	int client_fd = connect(conSocket,reinterpret_cast<struct sockaddr*>(&client_adress), addrlen);
-	send(conSocket, buffer, 100, 0);
+	send(conSocket, buffer, BUFFER_SIZE, 0);
 	//send(conSocket, bye, strlen(bye), 0);
 	//char* end = "###";
-	send(conSocket, end, 100, 0);
+	send(conSocket, end, BUFFER_SIZE, 0);
 	std::cout << "hello message sent! from clientcpp" << std::endl;
 
 	return 0;
