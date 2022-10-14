@@ -8,6 +8,7 @@
 #include <string>
 #include <thread>
 #include <fstream>
+#include <regex>
 
  #define PORT 20018
  #define BUFFER_SIZE 100
@@ -22,6 +23,43 @@ void addToLog(string string1)
 }
 
 
+
+
+void getMessage(int socket, char buffer[])
+{
+
+    recv(socket, buffer, BUFFER_SIZE, 0);
+        string strbuf = string(buffer);
+        if (regex_match(strbuf, regex("start")))
+        {
+            addToLog(buffer);
+        }
+        else{
+            strbuf.append(":Error occured!");
+            addToLog(strbuf);
+        }
+
+    while(1)
+    {
+        recv(socket, buffer, BUFFER_SIZE, 0);
+        string strbuf = string(buffer);
+        if (!regex_match(strbuf, regex("stop")))
+        {
+            addToLog(buffer);
+        }
+        else{
+            addToLog(buffer);
+            break;
+        }
+
+
+        cout << "from server buffer: " << buffer << '\n' << endl;
+
+
+
+        memset(buffer, '\0', BUFFER_SIZE);
+    }
+}
 
 
 void sockets()
@@ -67,21 +105,9 @@ void sockets()
     char* end = "###";
     strcpy(buffer, "Server connected! \n");
     send(new_socket, buffer, BUFFER_SIZE, 0);
-    memset(buffer, '\0', sizeof(buffer));
-    while (new_socket>0)
-    {
-        recv(new_socket, buffer, BUFFER_SIZE, 0);
-        cout << "from server buffer: " << buffer << '\n' << endl;
-        addToLog(string(buffer));
-        if (strstr(buffer, end) != NULL)
-        {
-            break;
-        }
-
-
-        memset(buffer, '\0', BUFFER_SIZE);
-    }
-
+    memset(buffer, '\0', BUFFER_SIZE);
+    getMessage(new_socket, buffer);
+    
 }
 
 int main()
