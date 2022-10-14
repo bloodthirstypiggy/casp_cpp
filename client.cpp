@@ -6,13 +6,12 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <iostream>
+#define PORT 20018
 #define BUFFER_SIZE 100
-
-//you shoud export PORT=20018 on linux machine
 
 int main(int argc, char const* argv[])
 {
-	int PORT = std::stoi(getenv("PORT"));
+
 	//buffer
 	char* hello = "hello from client";
 	char* bye = "goodbye!";

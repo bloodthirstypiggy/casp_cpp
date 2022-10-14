@@ -14,33 +14,29 @@
  #define BUFFER_SIZE 100
 using namespace std;
  
-
- //bad realization to open and close every time !TODO
-/*void addToLog(string string1)
+void addToLog(string string1)
 {
-    //ofstream logs;
-    //logs.open("log.txt");
+    ofstream logs;
+    logs.open("log.txt", ios::app);
     logs << string1 << endl;
     logs.close();
-}*/
+}
+
 
 
 
 void getMessage(int socket, char buffer[])
 {
-    ofstream logs;
-    logs.open("log.txt");
-
 
     recv(socket, buffer, BUFFER_SIZE, 0);
         string strbuf = string(buffer);
         if (regex_match(strbuf, regex("start")))
         {
-            logs << strbuf<< endl;
+            addToLog(buffer);
         }
         else{
             strbuf.append(":Error occured!");
-            logs << strbuf << endl;
+            addToLog(strbuf);
         }
 
     while(1)
@@ -49,11 +45,10 @@ void getMessage(int socket, char buffer[])
         string strbuf = string(buffer);
         if (!regex_match(strbuf, regex("stop")))
         {
-            logs << strbuf << endl;
+            addToLog(buffer);
         }
         else{
-            logs << strbuf << endl;
-            logs.close();
+            addToLog(buffer);
             break;
         }
 
@@ -112,9 +107,7 @@ void sockets()
     send(new_socket, buffer, BUFFER_SIZE, 0);
     memset(buffer, '\0', BUFFER_SIZE);
     getMessage(new_socket, buffer);
-    close(new_socket);
-    shutdown(conSocket, SHUT_RDWR);
-    exit(0);
+    
 }
 
 int main()
