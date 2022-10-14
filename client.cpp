@@ -28,12 +28,10 @@ int main(int argc, char const* argv[])
 
 	//connect
 
-	char buffer[BUFFER_SIZE] = "start";
-	char message[] = "hui hui hui";
-	char* end = "stop";
+	char buffer[BUFFER_SIZE] = "aaaaaaaaaaaaaaaaaaa";
+	char* end = "###";
 	int client_fd = connect(conSocket,reinterpret_cast<struct sockaddr*>(&client_adress), addrlen);
 	send(conSocket, buffer, BUFFER_SIZE, 0);
-	send(conSocket, message, BUFFER_SIZE, 0);
 	//send(conSocket, bye, strlen(bye), 0);
 	//char* end = "###";
 	send(conSocket, end, BUFFER_SIZE, 0);
