@@ -1,14 +1,12 @@
-// Client side C/C++ program to demonstrate Socket
-// programming
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <iostream>
-#define BUFFER_SIZE 10000
+#define BUFFER_SIZE 1000
 
-//you shoud export PORT=20018 on linux machine
+//you shoud "export PORT=8081" on linux machine before running client
 
 int writestr(int sock, const char *str)
 {
@@ -39,27 +37,23 @@ int main(int argc, char const* argv[])
 	//create socket
 
 	int conSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if(conSocket < 0)
+	{
+		return 1;
+	}
 
 	//connect
 
 	int client_fd = connect(conSocket,reinterpret_cast<struct sockaddr*>(&client_adress), addrlen);
 	int n;
-	//char message[] = "messag\n";
-	//n = send(conSocket, message, sizeof(message), 0);
-	//n = send(conSocket, message, sizeof(message), 0);
-	
-	n = writestr(conSocket, "start\n");
-	n = writestr(conSocket, "message\n");
-	n = writestr(conSocket, "message1\n");
-	n = writestr(conSocket, "message2\n");
-	n = writestr(conSocket, "message10\n");
-	n = writestr(conSocket, "message5\n");
+
+	n = writestr(conSocket, "not start\n");
+	n = writestr(conSocket, "pepeLaugh\n");
+	n = writestr(conSocket, "kekw\n");
+	n = writestr(conSocket, "sadge\n");
+	n = writestr(conSocket, "HUHH\n");
+	n = writestr(conSocket, "pepeHands\n");
 	n = writestr(conSocket, "end\n");
 	
-	//char* recev = (char*)malloc(100);
-	//int recv1 = recv(conSocket, recev, sizeof(recev), 0);
-	//std::cout << recv1;
-
-
 	return 0;
 }
