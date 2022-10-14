@@ -44,11 +44,18 @@ int main(int argc, char const* argv[])
 
 	int client_fd = connect(conSocket,reinterpret_cast<struct sockaddr*>(&client_adress), addrlen);
 	int n;
+	//char message[] = "messag\n";
+	//n = send(conSocket, message, sizeof(message), 0);
+	//n = send(conSocket, message, sizeof(message), 0);
+	
 	n = writestr(conSocket, "start\n");
 	n = writestr(conSocket, "message\n");
 	n = writestr(conSocket, "message1\n");
 	n = writestr(conSocket, "message2\n");
+	n = writestr(conSocket, "message10\n");
+	n = writestr(conSocket, "message5\n");
 	n = writestr(conSocket, "end\n");
+	
 	//char* recev = (char*)malloc(100);
 	//int recv1 = recv(conSocket, recev, sizeof(recev), 0);
 	//std::cout << recv1;

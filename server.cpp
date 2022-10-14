@@ -10,7 +10,7 @@
 #include <fstream>
 #include <regex>
 
- #define PORT 8080
+ #define PORT 8081
  #define BUFFER_SIZE 1000
 using namespace std;
  
@@ -27,38 +27,71 @@ using namespace std;
 
 int getMessages(int new_socket)
 {
-    char* buffer = (char*)malloc(BUFFER_SIZE);
-    string data;
-    string::size_type pos, last_pos = 0;
-    while(true)
-    {
+ofstream logs;
+logs.open("log.txt");
+char buffer[256];
+std::string data;
+std::string::size_type pos, last_pos = 0;
+int n;
 
-    int rcvd = read(new_socket, buffer, sizeof(buffer));
-    if (rcvd < 0)
-    {
-        cout << "error in receive!";
-    }
-    
-    cout.write(buffer, rcvd);
-    data.append(buffer, rcvd);
+
+while (true)
+{
+    n = read(new_socket, buffer, 6);
+    if (n <= 0) break;
+
+    std::cout.write(buffer, n);
+
+    data.append(buffer, n);
+
     pos = data.find('\n', last_pos);
-    if (pos != string::npos)
+    if (pos != std::string::npos)
     {
-        string line = data.substr(0, pos);
+        std::string line = data.substr(0, pos);
+
         data.erase(0, pos+1);
 
-        if (line.compare(0, 5, "end") == 0)
+        if (line.compare(0, 6, "start\n") != 0)
+        {
+            logs << "bad start!" << endl;
+        }
+
+        else
+        {
+            logs << "good start! \n" << endl;
+        }
+        break;
+    }
+    else
+        logs << "fucked up start" << endl;
+        break;
+}
+
+
+while (true)
+{
+    n = read(new_socket, buffer, sizeof(buffer));
+    if (n < 0) break;
+
+    std::cout.write(buffer, n);
+
+    data.append(buffer, n);
+
+    pos = data.find('\n', last_pos);
+    if (pos != std::string::npos)
+    {
+        std::string line = data.substr(0, pos);
+        logs << line;
+        data.erase(0, pos+1);
+
+        if (line.compare(0, 3, "end") == 0)
             break;
 
         last_pos = 0;
     }
-    else{
+    else
         last_pos = data.size();
-    }
-    
-
-    }
-    return 0;
+}
 }
 
 void sockets()
