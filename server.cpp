@@ -10,8 +10,8 @@
 #include <fstream>
 #include <regex>
 
- #define PORT 8080
- #define BUFFER_SIZE 1000
+ #define PORT 20018
+ #define BUFFER_SIZE 100
 using namespace std;
  
 
@@ -25,44 +25,51 @@ using namespace std;
 }*/
 
 
-int getMessages(int new_socket)
+
+void getMessage(int socket, char buffer[])
 {
-    char* buffer = (char*)malloc(BUFFER_SIZE);
-    string data;
-    string::size_type pos, last_pos = 0;
-    while(true)
-    {
+    ofstream logs;
+    logs.open("log.txt");
 
-    int rcvd = read(new_socket, buffer, sizeof(buffer));
-    if (rcvd < 0)
-    {
-        cout << "error in receive!";
-    }
-    
-    cout.write(buffer, rcvd);
-    data.append(buffer, rcvd);
-    pos = data.find('\n', last_pos);
-    if (pos != string::npos)
-    {
-        string line = data.substr(0, pos);
-        data.erase(0, pos+1);
 
-        if (line.compare(0, 5, "end") == 0)
+    recv(socket, buffer, BUFFER_SIZE, 0);
+        string strbuf = string(buffer);
+        if (regex_match(strbuf, regex("start")))
+        {
+            logs << strbuf<< endl;
+        }
+        else{
+            strbuf.append(":Error occured!");
+            logs << strbuf << endl;
+        }
+
+    while(1)
+    {
+        recv(socket, buffer, BUFFER_SIZE, 0);
+        string strbuf = string(buffer);
+        if (!regex_match(strbuf, regex("stop")))
+        {
+            logs << strbuf << endl;
+        }
+        else{
+            logs << strbuf << endl;
+            logs.close();
             break;
+        }
 
-        last_pos = 0;
-    }
-    else{
-        last_pos = data.size();
-    }
-    
 
+        cout << "from server buffer: " << buffer << '\n' << endl;
+
+
+
+        memset(buffer, '\0', BUFFER_SIZE);
     }
-    return 0;
 }
+
 
 void sockets()
 {
+    int client, server;
     sockaddr_in server_adress;
     int addrlen = sizeof(server_adress);
     int opt =1;
@@ -86,7 +93,7 @@ void sockets()
 
     // listen()
 
-    int error = listen(conSocket, 3);
+    int error = listen(conSocket, 1);
 
 
 
@@ -96,19 +103,24 @@ void sockets()
     //accept
 
     int new_socket = accept(conSocket,reinterpret_cast<struct sockaddr*>(&server_adress), (socklen_t*)&addrlen);
-    //char hei[] = "hello!";
-    //send(new_socket, hei, strlen(hei), 0);
 
     //handler
 
-
-    int res = getMessages(new_socket);
+    char buffer[BUFFER_SIZE];
+    char* end = "###";
+    strcpy(buffer, "Server connected! \n");
+    send(new_socket, buffer, BUFFER_SIZE, 0);
+    memset(buffer, '\0', BUFFER_SIZE);
+    getMessage(new_socket, buffer);
     close(new_socket);
     shutdown(conSocket, SHUT_RDWR);
+    exit(0);
 }
 
 int main()
 {
-    sockets();
+    thread soc(sockets);
+    soc.join();
     return 0;
+
 }
